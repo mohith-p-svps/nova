@@ -45,13 +45,4 @@ public class Scope {
         }
         throw new UndeclaredVariableException(name, line);
     }
-
-    // Returns all variables visible in this scope chain (for debugger)
-    public Map<String, Value> getAllVariables() {
-        Map<String, Value> all = new LinkedHashMap<>();
-        if (parent != null) all.putAll(parent.getAllVariables());
-        all.putAll(vars);   // local vars override parent
-        return all;
-    }
-
 }
