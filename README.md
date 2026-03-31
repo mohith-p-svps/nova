@@ -961,4 +961,4 @@ NovaLang/
 
 ## Licence
 
-MIT — do what you want, give credit where it's due.
+MIT
