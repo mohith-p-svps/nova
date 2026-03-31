@@ -31,7 +31,9 @@ import java.nio.file.*;
 public class NovaCLI {
 
     public static void main(String[] args) {
-        
+
+        NovaCore.printBannerIfNew();
+
         if (args.length == 0) {
             printHelp();
             return;
@@ -229,6 +231,6 @@ public class NovaCLI {
         System.out.println("  nova install alice/novautils/mathext.nova");
         System.out.println("  nova myprogram.nova");
         System.out.println();
-        System.out.println("Documentation: https://github.com/mohith-p-svps/nova");
+        System.out.println("Documentation: https://github.com/your-username/novalang");
     }
 }

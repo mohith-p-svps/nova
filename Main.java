@@ -20,12 +20,13 @@ public class Main {
     private static final String SOURCE_FILE = "code.txt";
 
     public static void main(String[] args) {
+        NovaCore.printBannerIfNew();
 
         String code = NovaCore.readFile(SOURCE_FILE);
         if (code == null) {
             System.err.println(
-                "Could not find '" + SOURCE_FILE + "'.\n" +
-                "Create " + SOURCE_FILE + " in the same folder as Main.java and write your Nova code in it."
+                    "Could not find '" + SOURCE_FILE + "'.\n" +
+                            "Create " + SOURCE_FILE + " in the same folder as Main.java and write your Nova code in it."
             );
             return;
         }
