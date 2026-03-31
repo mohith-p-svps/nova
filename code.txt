@@ -1,0 +1,2 @@
+# This is a nova comment
+# Here is where you write nova code to run it in an IDE
