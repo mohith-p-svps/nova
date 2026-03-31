@@ -4,7 +4,7 @@ import java.math.*;
 public class Interpreter {
 
     private Scope globalScope = new Scope();
-    Map<String, FunctionDefNode> functions = new HashMap<>();  // package-accessible for pkg loader
+    private Map<String, FunctionDefNode> functions = new HashMap<>();
     private Map<String, Map<String, BuiltinFunction>> modules = new HashMap<>();
 
     private Value evaluate(Node node, Scope scope) {
@@ -243,7 +243,6 @@ public class Interpreter {
     private void executeBlock(List<Node> nodes, Scope scope, boolean isTopLevel) {
 
         for (Node node : nodes) {
-            beforeStatement(node);   // hook for debugger
 
             // let x = value
             if (node instanceof AssignmentNode a) {
@@ -439,15 +438,8 @@ public class Interpreter {
                         modules.put(u.registerAs(), DateTimeModule.load());
                         break;
                     default:
-                        // Try loading from ~/.nova/packages/<name>.nova
-                        Map<String, BuiltinFunction> pkg = tryLoadPackage(u.moduleName, u.line);
-                        if (pkg != null) {
-                            modules.put(u.registerAs(), pkg);
-                        } else {
-                            throw new NovaRuntimeException(
-                                "Unknown module: '" + u.moduleName + "'. " +
-                                "Install it with: nova install <url>", u.line);
-                        }
+                        throw new NovaRuntimeException(
+                            "Unknown module: '" + u.moduleName + "'", u.line);
                 }
             }
 
@@ -477,46 +469,4 @@ public class Interpreter {
             }
         }
     }
-
-    // ── Package loader ───────────────────────────────────────────────────────
-    private Map<String, BuiltinFunction> tryLoadPackage(String name, int line) {
-        java.nio.file.Path pkgPath = java.nio.file.Path.of(
-            System.getProperty("user.home"), ".nova", "packages", name + ".nova");
-
-        if (!java.nio.file.Files.exists(pkgPath)) return null;
-
-        try {
-            String code = java.nio.file.Files.readString(pkgPath);
-            Lexer lexer = new Lexer(code);
-            List<Token> tokens = lexer.tokenize();
-            Parser parser = new Parser(tokens);
-            List<Node> ast = parser.parse();
-
-            // Execute the package in a child interpreter to collect its functions
-            Interpreter pkgInterp = new Interpreter();
-            pkgInterp.execute(ast);
-
-            // Wrap every function defined in the package as a BuiltinFunction
-            Map<String, BuiltinFunction> funcs = new java.util.LinkedHashMap<>();
-            for (Map.Entry<String, FunctionDefNode> entry : pkgInterp.functions.entrySet()) {
-                FunctionDefNode fn = entry.getValue();
-                funcs.put(entry.getKey(), (args, callLine) ->
-                    pkgInterp.callFunction(fn, args, callLine));
-            }
-            return funcs;
-
-        } catch (java.io.IOException e) {
-            throw new NovaRuntimeException(
-                "Could not read package '" + name + "': " + e.getMessage(), line);
-        }
-    }
-
-    // ── Debugger hooks — overridden by DebugInterpreter ──────────────────────
-    protected void beforeStatement(Node node) {}
-    protected void onFunctionEnter(String name) {}
-    protected void onFunctionExit(String name) {}
-
-    // Expose current scope for debugger inspection
-    protected Scope currentScope() { return globalScope; }
-
 }
