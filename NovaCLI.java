@@ -31,7 +31,9 @@ import java.nio.file.*;
 public class NovaCLI {
 
     public static void main(String[] args) {
-        
+
+        NovaCore.printBannerIfNew();
+
         if (args.length == 0) {
             printHelp();
             return;

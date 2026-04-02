@@ -21,7 +21,7 @@ public class NovaCore {
 
     public static final String VERSION  = "0.1";
     public static final String CODENAME = "Archimedes";
-    public static final String FULL_VERSION = "NovaLang " + VERSION + " - " + CODENAME;
+    public static final String FULL_VERSION = "NovaLang " + VERSION + " — " + CODENAME;
 
     // ── Pipeline ──────────────────────────────────────────────────────────────
 
@@ -96,4 +96,70 @@ public class NovaCore {
             return lines[lineNum - 1];
         return null;
     }
+
+    // ── Banner ────────────────────────────────────────────────────────────────
+
+    /**
+     * Print the NovaLang ASCII banner if this version has not been seen
+     * in this terminal session yet.
+     *
+     * Logic:
+     *   - The marker file ~/.nova/banner_version stores the last version
+     *     that printed the banner.
+     *   - If the file is missing or contains a different version string,
+     *     print the banner and update the file.
+     *   - If the file already contains this exact version, stay quiet.
+     *
+     * This means the banner prints once after install and once after
+     * each upgrade — never on every single command.
+     */
+    public static void printBannerIfNew() {
+        Path markerDir  = Path.of(System.getProperty("user.home"), ".nova");
+        Path markerFile = markerDir.resolve("banner_version");
+
+        try {
+            // Read whatever version last printed the banner
+            String lastSeen = "";
+            if (Files.exists(markerFile)) {
+                lastSeen = Files.readString(markerFile).strip();
+            }
+
+            // If this version is already recorded, do nothing
+            if (lastSeen.equals(FULL_VERSION)) return;
+
+            // New version (or first ever run) — print the banner
+            printBanner();
+
+            // Record this version so we don't print again
+            Files.createDirectories(markerDir);
+            Files.writeString(markerFile, FULL_VERSION);
+
+        } catch (IOException e) {
+            // Never crash over a banner — silently skip
+        }
+    }
+
+    private static void printBanner() {
+        System.out.println();
+        System.out.println("                         ########+         .###. #######.                    ");
+        System.out.println("                        =#########=        *##- #######-                     ");
+        System.out.println("                       :###########-      -##* -#######                      ");
+        System.out.println("                       *############-    .### .#######                       ");
+        System.out.println("                      +##############.   *##= *######=                       ");
+        System.out.println("                     .#######-########: =##* -######*                        ");
+        System.out.println("                     #######= .######## .##..#######.                        ");
+        System.out.println("                    =######*   .######## := *######=                         ");
+        System.out.println("                   .#######.    :########  -######*                          ");
+        System.out.println("                   #######=      :#######: #######:                          ");
+        System.out.println("                  =#######        =#####= *######=                           ");
+        System.out.println("                 :#######          =#### -#######..                          ");
+        System.out.println("                 *######=           =##. ######################.             ");
+        System.out.println("                +######*             += *#####################.              ");
+        System.out.println("               :#######.               :####################*                ");
+        System.out.println();
+        System.out.println("  " + FULL_VERSION);
+        System.out.println("  Type \'nova help\' to see all commands.");
+        System.out.println();
+    }
+
 }
