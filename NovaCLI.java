@@ -231,6 +231,6 @@ public class NovaCLI {
         System.out.println("  nova install alice/novautils/mathext.nova");
         System.out.println("  nova myprogram.nova");
         System.out.println();
-        System.out.println("Documentation: https://github.com/your-username/novalang");
+        System.out.println("Documentation: https://github.com/mohith-p-svps/nova");
     }
 }
